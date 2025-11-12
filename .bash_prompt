@@ -1,20 +1,50 @@
 # shellcheck shell=bash
 # shellcheck disable=SC2312
 
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+BOLD=$(tput bold)
+RESET=$(tput sgr0)
+
 # Print UTF-8 char?
+# To define fallback chars for terms that don't support Unicode
 __ps1_utf8(){
   case "${TERM}" in
-    *color)
+    xterm*)
       echo "${1}";;
     *)
       echo "${2}";;
   esac
 }
 
+# The opening and closing characters for info in the prompt
+PS1_Op="$(__ps1_utf8 ⟪ '[')"
+PS1_Cl="$(__ps1_utf8 ⟫ ']')"
+# Other options, presented with the box drawing character,
+# to see which look best with your particular terminal font:
+# ═⏴⏵═ ═❨❩═ ═❪❫═ ═❬❭═ ═❮❯═ ═❰❱═ ═❲❳═ ═❴❵═ ═⟦⟧═ ═⟨⟩═ ═⟪⟫═ ═⟬⟭═
+# ═⟮⟯═ ═⦃⦄═ ═⦅⦆═ ═⦇⦈═ ═⦉⦊═ ═⦋⦌═ ═⦍⦎═ ═⦏⦐═ ═⦑⦒═ ═⦓⦔═ ═⦕⦖═ ═⦗⦘═
+# ═⨠  ═⧏⧐═ ═⧑ ⧒═ ═⧓═ ═⧔ ⧕═ ═⨝═ ═⨭ ⨮═ ═⨴ ⨵═ ═⩤ ⩥═ ═⩹ ⩺═ ═⩽ ⩾═
+# ═⩿⪀═ ═⪁⪂═ ═⪃⪄═ ═⪋⪌═ ═⪕⪖═ ═⪗⪘═ ═⪙⪚═ ═⪛⪜═ ═⪡⪢═ ═⪥ ═⪦ ⪧═ ═⪨⪩═
+# ═⪪⪫═ ═⪬⪭═ ═⪯⪰═ ═⪳⪴═ ═⪻⪼═ ═⪽⪾═ ═⫇⫈═ ═⫍⫎═ ═⫏⫐═ ═⫑⫒═ ═⫗═  ═⫘═
+# ⫞═ ═⫣ ⫤ ⫥ ⫦═ ═⫬ ⫭═ ═⫷ ⫸═ ═⫹ ⫺═ ═⫻ ⫻═ ═⭆ ⭅═ ═⮆ ⮄═ ═⮊ ⮈═ ═⮎ ⮌═
+# ═⮑ ⮐═  ═⮘ ⮚═ ═⮜ ⮞═ ═⮡ ⮠═ ═⮣ ⮢═ ═⮩ ⮨═ ═⮫ ⮪═ ═⮵ ⮶═ ═⮷ ⮴═ ═⯰ ⯰═
+# ═⯴ ⯴═ ═⯵ ⯵═  ═⯺ ⯺═ ═⯼ ⯼═ ═⸎ ⸎═ ═⸦ ⸧═ ═⸨ ⸩═ ═⸬ ⸬═ 
+# ═〈〉═ ═《》═ ═「」═ ═『』═ ═【】═ ═〔〕═ ═〖〗═ ═〘〙═ ═〚〛═
+
+# Disable Python virtualenv modifications to the prompt
+# That's taken care of here instead
+export VIRTUAL_ENV_DISABLE_PROMPT="yes"
+__ps1_getVirtualenv(){
+  if [[ -v VIRTUAL_ENV ]]; then
+    echo -n "${PS1_Op}$(basename ${VIRTUAL_ENV})${PS1_Cl}"
+  fi
+}
+
 # Print UTF-8 time char?
 __ps1_utf8time(){
   case "${TERM}" in
-    *color)
+    xterm*)
       case "${1}:${2}" in
         01:[0-2][0-9]) echo "🕐";; 01:[3-5][0-9]) echo "🕜";;
         02:[0-2][0-9]) echo "🕑";; 02:[3-5][0-9]) echo "🕝";;
@@ -49,8 +79,8 @@ __ps1_tty(){ tty | cut -c 6-; }
 
 # Uptime
 __ps1_uptime(){
-  PS1_upsecs=$(awk '{print $1}' /proc/uptime | awk -F . '{print $1}')
-  date -ud @"${PS1_upsecs}" +$((PS1_upsecs/3600/24))d%H:%M
+  local PS1_upsecs; PS1_upsecs=$(awk '{print $1}' /proc/uptime | awk -F . '{print $1}')
+  date -ud @"${PS1_upsecs}" +"$((PS1_upsecs/3600/24))d %H:%M"
 }
 
 # Dir stats
@@ -66,12 +96,27 @@ __ps1_spec(){ \grep -c "^[bcps]" <<< "${PS1_dirList}"; }
 # Calculate padding
 __pad(){
   local len pad
-  if [[ "${1}" = 1_L1 ]]; then len="$(wc -m <<< "${PS1_L1@P}")"
-  else len="$(wc -m <<< "${PS1_L2@P}")"; fi
-  if [[ "${TERM}" = *color ]];
-    then if [[ "${1}" = 1_L1 ]]; then pad=$((COLUMNS-len-3))
-    else pad=$((COLUMNS-len-6)); fi
-  else pad=$((COLUMNS-len)); fi
+
+  if [[ "${1}" = 1_L1 ]]; then
+    len="$(wc -m <<< "${PS1_L1@P}")"
+  else
+    len="$(wc -m <<< "${PS1_L2@P}")"
+  fi
+  if [[ "${TERM}" = xterm* ]]; then
+    if [[ "${1}" = 1_L1 ]]; then
+      pad=$((COLUMNS-len-11))
+    else
+      pad=$((COLUMNS-len-8))
+    fi
+  else {
+    if [[ "${1}" = 1_L1 ]]; then
+      pad=$((COLUMNS-len-14))
+    else
+      pad=$((COLUMNS-len))
+    fi
+  }
+  fi
+
   printf %"${pad}"s | sed 's/ /═/g'
 }
 
@@ -82,56 +127,100 @@ __ps1_preCommand(){
       local pwd='~'
       [[ "${PWD}" != "${HOME}" ]] && pwd=${PWD/#${HOME}\//\~\/}
       pwd="${pwd//[[:cntrl:]]}"
-      echo -ne "\033]0;${USER}@${HOSTNAME%%.*}($(__ps1_tty)):${pwd} (${BASH_COMMAND})\007"
+      echo -ne "\033]0;$(__ps1_getVirtualenv) ${USER}@${HOSTNAME%%.*}($(__ps1_tty))($(jobs -r | wc -l)R/$(jobs -s | wc -l)S):${pwd} (${BASH_COMMAND})\007"
     ;;
     *) ;;
   esac
 }
 trap "__ps1_preCommand" DEBUG
 
+# Color, dirList, and lolcat options based on the terminal
 case "${TERM}" in
-  *color) PS1_color=yes; PS1_lc_opts=( -v 0.1 -h 0.1 -b -f );;
-   linux) PS1_color=yes; PS1_lc_opts=( -x -f );;
+  xterm*) PS1_color=yes; PS1_getDirList=yes; PS1_lc_opts=( -v 0.1 -h 0.1 -b -f );;
+   linux) PS1_color=yes; PS1_getDirList=yes; PS1_lc_opts=( -x -f );;
        *) ;;
 esac
 
-PS1_Op="$(__ps1_utf8 ⟪ '[')"
-PS1_Cl="$(__ps1_utf8 ⟫ ']')"
-
 __prompt_command(){
-  local PS1_dirList PS1_exit PS1_L0 PS1_L1 PS1_L2 PS1_L3
-
   # Save last exit code
-  PS1_exit=$?
+  local PS1_exit=$?
 
-  # Get dir listing
-  PS1_dirList=$(\ls -Al --si)
+  local PS1_dirList PS1_L0 PS1_L1 PS1_L2 PS1_L3
 
-  PS1_L1=" ╚═${PS1_Op}Exit ${PS1_exit}${PS1_Cl}══${PS1_Op}\u($(__ps1_utf8 💻)$(__ps1_tty))@\h($(__ps1_utf8 ⚡)$(__ps1_uptime))${PS1_Cl}══╡$(__ps1_utf8 🔥 \*)╞"
-  PS1_L1+="$(__pad 1_L1)╗\n"
-  PS1_L2="╔═${PS1_Op}\!:\#${PS1_Cl}══${PS1_Op}$(jobs -r | wc -l)$(__ps1_utf8 🏃 R)/$(jobs -s | wc -l)$(__ps1_utf8 💤 S)${PS1_Cl}══${PS1_Op}$(__ps1_utf8 📂)\W($(__ps1_dirSize)B $(__ps1_utf8 📄 -)$(__ps1_files).$(__ps1_hiddenFiles) $(__ps1_utf8 💾 x)$(__ps1_execs) $(__ps1_utf8 📁 d)$(__ps1_dirs).$(__ps1_hiddenDirs) $(__ps1_utf8 🔗 l)$(__ps1_links) $(__ps1_utf8 '🖨️ ' s)$(__ps1_spec))${PS1_Cl}"
+  # Get dir listing, if we want it
+  if [[ -n "${PS1_getDirList}" ]]
+    then PS1_dirList=$(\ls -Al --si)
+  fi
+
+  # PS1 Line 1
+  # Exit code of previous command
+  PS1_L1=" ╚═${PS1_Op}${PS1_exit}${PS1_Cl}"
+  # Name of the lion using this term
+  PS1_L1+="══${PS1_Op}$(__ps1_utf8 🦁 'U:')\u${PS1_Cl}"
+  # The TTY of this term
+  PS1_L1+="══${PS1_Op}$(__ps1_utf8 📺 'T:')$(__ps1_tty)${PS1_Cl}"
+  # The host of this term
+  PS1_L1+="══${PS1_Op}$(__ps1_utf8 💻 'H:')\h${PS1_Cl}"
+  # The uptime of this host
+  PS1_L1+="══${PS1_Op}$(__ps1_utf8 ⚡ 'Up:')$(__ps1_uptime)${PS1_Cl}"
+  # Line padding and eternal flame
+  PS1_L1+="$(__pad 1_L1)═╡$(__ps1_utf8 🔥 'on I burn')╞══╗\n"
+  # PS1 Line 2
+  # The length of our command history, global and for this term
+  PS1_L2="╔═${PS1_Op}\!:\#${PS1_Cl}"
+  # Background jobs, running and sleeping
+  PS1_L2+="══${PS1_Op}$(__ps1_utf8 🏃 'R:')$(jobs -r | wc -l)/$(__ps1_utf8 💤 'S:')$(jobs -s | wc -l)${PS1_Cl}"
+  # Current Working Directory stat's...
+  PS1_L2+="══${PS1_Op}$(__ps1_utf8 📂 'cwd:')\W($(__ps1_dirSize)B"
+  # ...№ files, normal and hidden...
+  PS1_L2+=" $(__ps1_utf8 📄 -)$(__ps1_files).$(__ps1_hiddenFiles)"
+  # ...№ executables...
+  PS1_L2+=" $(__ps1_utf8 💾 x)$(__ps1_execs)"
+  # ...№ directories, normal and hidden...
+  PS1_L2+=" $(__ps1_utf8 📁 d)$(__ps1_dirs).$(__ps1_hiddenDirs)"
+  # ...№ links...
+  PS1_L2+=" $(__ps1_utf8 🔗 l)$(__ps1_links)"
+  # ...№ special files
+  PS1_L2+=" $(__ps1_utf8 📠 s)$(__ps1_spec))${PS1_Cl}"
+  # Line padding
   PS1_L2+="$(__pad 1_L2)╝\n"
-  PS1_L3="╚╦═$(__ps1_utf8 ⮚ \>)$(__ps1_utf8 💲 \$) "
+  # PS1 Line 3
+  # If we're in a python virtual environment, print its name
+  PS1_L3="╚╦$(__ps1_getVirtualenv)═$(__ps1_utf8 ╾ '>')$(__ps1_utf8 💲 '$') "
 
   # shellcheck disable=SC2016
   case "${PS1_color}" in
-    yes) if [[ "${TERM}" = *color ]]; then
-              PS0='$(lolcat-c '${PS1_lc_opts[*]}' <<< "╾╨────┤Program running  $(__ps1_utf8 "🗓️ ")\d $(__ps1_utf8time "$(date +"%I")" "$(date +"%M")")\D{}├$(printf %$((COLUMNS-52))s | sed "s/ /─/g")╮")'
-           PS1_L0='$(lolcat-c '${PS1_lc_opts[*]}' <<< "╾╥────┤Program finished $(__ps1_utf8 "🗓️ ")\d $(__ps1_utf8time "$(date +"%I")" "$(date +"%M")")\D{}├$(printf %$((COLUMNS-52))s | sed "s/ /─/g")╯")'
-         else
-              PS0='$(lolcat-c '${PS1_lc_opts[*]}' <<< "╾╨────┤Program running  \d \D{}├$(printf %$((COLUMNS-48))s | sed "s/ /─/g")╮")'
-           PS1_L0='$(lolcat-c '${PS1_lc_opts[*]}' <<< "╾╥────┤Program finished \d \D{}├$(printf %$((COLUMNS-48))s | sed "s/ /─/g")╯")'; fi
+    yes) if [[ "${TERM}" == xterm* ]]
+         then {
+              PS0='$(lolcat-c '${PS1_lc_opts[*]}' <<< "╾╨────┤Program running  $(__ps1_utf8 🗓️) \d  $(__ps1_utf8time "$(date +"%I")" "$(date +"%M")")\D{}├$(printf %$((COLUMNS-54))s | sed "s/ /─/g")╮")'
+           PS1_L0='$(lolcat-c '${PS1_lc_opts[*]}' <<< "╾╥────┤Program finished $(__ps1_utf8 🗓️) \d  $(__ps1_utf8time "$(date +"%I")" "$(date +"%M")")\D{}├$(printf %$((COLUMNS-54))s | sed "s/ /─/g")╯")'
+         }
+         else {
+              PS0='$(lolcat-c '${PS1_lc_opts[*]}' <<< "╾╨────┤Program running   \d \D{}├$(printf %$((COLUMNS-49))s | sed "s/ /─/g")╮")'
+           PS1_L0='$(lolcat-c '${PS1_lc_opts[*]}' <<< "╾╥────┤Program finished  \d \D{}├$(printf %$((COLUMNS-49))s | sed "s/ /─/g")╯")'
+         }; fi
          PS1='$(lolcat-c '${PS1_lc_opts[*]}' <<< "'${PS1_L0}${PS1_L1}${PS1_L2}${PS1_L3}'" | sed -z "s/\(.*\)\\n/\1/" | __ps1_color_wrap_non_printing)'
-         PS2="$(lolcat-c "${PS1_lc_opts[@]}" <<< " ╠═══$(__ps1_utf8 ⮚ \>) " | sed -z "s/\(.*\)\\n/\1/" | __ps1_color_wrap_non_printing)";;
-      *) if [[ "${TERM}" = *color ]]; then
-              PS0="╾╨────┤Program running  $(__ps1_utf8 "🗓️ ")\d $(__ps1_utf8time "$(date +"%I")" "$(date +"%M")")\D{}├$(printf %$((COLUMNS-52))s | sed "s/ /─/g")╮"
-           PS1_L0="╾╥────┤Program finished $(__ps1_utf8 "🗓️ ")\d $(__ps1_utf8time "$(date +"%I")" "$(date +"%M")")\D{}├$(printf %$((COLUMNS-52))s | sed "s/ /─/g")╯"
-         else
-           # shellcheck disable=SC2034
-              PS0="╾╨────┤Program running  \d \D{}├$(printf %$((COLUMNS-48))s | sed "s/ /─/g")╮"
-           PS1_L0="╾╥────┤Program finished \d \D{}├$(printf %$((COLUMNS-48))s | sed "s/ /─/g")╯"; fi
-         PS1="${PS1_L0}${PS1_L1}${PS1_L2}${PS1_L3}"
-         PS2=" ╠═══$(__ps1_utf8 ⮚ \>) ";;
+         PS2="$(lolcat-c "${PS1_lc_opts[@]}" <<< " ╠══$(__ps1_utf8 ╾ ┈) " | sed -z "s/\(.*\)\\n/\1/" | __ps1_color_wrap_non_printing)"
+    ;;
+    *) if [[ "${TERM}" == xterm* ]]
+       then {
+            PS0="╾╨────┤Program running  $(__ps1_utf8 "🗓️ ") \d  $(__ps1_utf8time "$(date +"%I")" "$(date +"%M")") \D{}├$(printf %$((COLUMNS-62))s | sed "s/ /─/g")╮\n"
+         PS1_L0="╾╥────┤Program finished $(__ps1_utf8 "🗓️ ") \d  $(__ps1_utf8time "$(date +"%I")" "$(date +"%M")") \D{}├$(printf %$((COLUMNS-62))s | sed "s/ /─/g")╯\n"
+       }
+       else {
+         # shellcheck disable=SC2034
+            PS0="╾╨────┤Program running   \d \D{}├$(printf %$((COLUMNS-49))s | sed "s/ /─/g")╮"
+         PS1_L0="╾╥────┤Program finished  \d \D{}├$(printf %$((COLUMNS-49))s | sed "s/ /─/g")╯"
+       }; fi
+       PS1="${PS1_L0}${PS1_L1}${PS1_L2}${PS1_L3}"
+       PS2=" ╠══$(__ps1_utf8 ╾ ┈) "
+    ;;
   esac
+  if [[ "${TERM}" ==  xterm* || "${TERM}" == rxvt* ]]
+  then {
+    PS1="\[\e]0;$(__ps1_getVirtualenv) \u@\h($(__ps1_tty))($(jobs -r | wc -l)R/$(jobs -s | wc -l)S):\w (idle)\a\]${PS1}"
+  }; fi
 }
-PROMPT_COMMAND="__prompt_command${PROMPT_COMMAND:+"; ${PROMPT_COMMAND}"}"
+PROMPT_COMMAND="__prompt_command${PROMPT_COMMAND:+; ${PROMPT_COMMAND}}"
+
+# vim:et:sts=2:sw=2:ts=2
