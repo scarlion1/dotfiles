@@ -1,20 +1,18 @@
+#!/bin/env bash
 # shellcheck shell=bash
 # shellcheck disable=SC2312
 
-RED=$(tput setaf 1)
-GREEN=$(tput setaf 2)
-BOLD=$(tput bold)
-RESET=$(tput sgr0)
-
 # Print UTF-8 char?
 # To define fallback chars for terms that don't support Unicode
-__ps1_utf8(){
-  case "${TERM}" in
-    xterm*)
-      echo "${1}";;
-    *)
-      echo "${2}";;
-  esac
+__ps1_utf8() {
+	case "${TERM}" in
+		xterm*)
+			echo "${1}"
+			;;
+		*)
+			echo "${2}"
+			;;
+	esac
 }
 
 # The opening and closing characters for info in the prompt
@@ -29,198 +27,288 @@ PS1_Cl="$(__ps1_utf8 ⟫ ']')"
 # ═⪪⪫═ ═⪬⪭═ ═⪯⪰═ ═⪳⪴═ ═⪻⪼═ ═⪽⪾═ ═⫇⫈═ ═⫍⫎═ ═⫏⫐═ ═⫑⫒═ ═⫗═  ═⫘═
 # ⫞═ ═⫣ ⫤ ⫥ ⫦═ ═⫬ ⫭═ ═⫷ ⫸═ ═⫹ ⫺═ ═⫻ ⫻═ ═⭆ ⭅═ ═⮆ ⮄═ ═⮊ ⮈═ ═⮎ ⮌═
 # ═⮑ ⮐═  ═⮘ ⮚═ ═⮜ ⮞═ ═⮡ ⮠═ ═⮣ ⮢═ ═⮩ ⮨═ ═⮫ ⮪═ ═⮵ ⮶═ ═⮷ ⮴═ ═⯰ ⯰═
-# ═⯴ ⯴═ ═⯵ ⯵═  ═⯺ ⯺═ ═⯼ ⯼═ ═⸎ ⸎═ ═⸦ ⸧═ ═⸨ ⸩═ ═⸬ ⸬═ 
+# ═⯴ ⯴═ ═⯵ ⯵═  ═⯺ ⯺═ ═⯼ ⯼═ ═⸎ ⸎═ ═⸦ ⸧═ ═⸨ ⸩═ ═⸬ ⸬═
 # ═〈〉═ ═《》═ ═「」═ ═『』═ ═【】═ ═〔〕═ ═〖〗═ ═〘〙═ ═〚〛═
 
 # Disable Python virtualenv modifications to the prompt
 # That's taken care of here instead
 export VIRTUAL_ENV_DISABLE_PROMPT="yes"
-__ps1_getVirtualenv(){
-  if [[ -v VIRTUAL_ENV ]]; then
-    echo -n "${PS1_Op}$(basename ${VIRTUAL_ENV})${PS1_Cl}"
-  fi
+__ps1_getVirtualenv() {
+	if [[ -v VIRTUAL_ENV ]]; then
+		echo -n "${PS1_Op}$(basename ${VIRTUAL_ENV})${PS1_Cl}"
+	fi
 }
 
 # Print UTF-8 time char?
-__ps1_utf8time(){
-  case "${TERM}" in
-    xterm*)
-      case "${1}:${2}" in
-        01:[0-2][0-9]) echo "🕐";; 01:[3-5][0-9]) echo "🕜";;
-        02:[0-2][0-9]) echo "🕑";; 02:[3-5][0-9]) echo "🕝";;
-        03:[0-2][0-9]) echo "🕒";; 03:[3-5][0-9]) echo "🕞";;
-        04:[0-2][0-9]) echo "🕓";; 04:[3-5][0-9]) echo "🕟";;
-        05:[0-2][0-9]) echo "🕔";; 05:[3-5][0-9]) echo "🕠";;
-        06:[0-2][0-9]) echo "🕕";; 06:[3-5][0-9]) echo "🕡";;
-        07:[0-2][0-9]) echo "🕖";; 07:[3-5][0-9]) echo "🕢";;
-        08:[0-2][0-9]) echo "🕗";; 08:[3-5][0-9]) echo "🕣";;
-        09:[0-2][0-9]) echo "🕘";; 09:[3-5][0-9]) echo "🕤";;
-        10:[0-2][0-9]) echo "🕙";; 10:[3-5][0-9]) echo "🕥";;
-        11:[0-2][0-9]) echo "🕚";; 11:[3-5][0-9]) echo "🕦";;
-        12:[0-2][0-9]) echo "🕛";; 12:[3-5][0-9]) echo "🕧";;
-        *) ;;
-      esac
-    ;;
-    *) ;;
-  esac
+__ps1_utf8time() {
+	case "${TERM}" in
+		xterm*)
+			case "${1}:${2}" in
+				01:[0-2][0-9]) echo "🕐" ;; 01:[3-5][0-9]) echo "🕜" ;;
+				02:[0-2][0-9]) echo "🕑" ;; 02:[3-5][0-9]) echo "🕝" ;;
+				03:[0-2][0-9]) echo "🕒" ;; 03:[3-5][0-9]) echo "🕞" ;;
+				04:[0-2][0-9]) echo "🕓" ;; 04:[3-5][0-9]) echo "🕟" ;;
+				05:[0-2][0-9]) echo "🕔" ;; 05:[3-5][0-9]) echo "🕠" ;;
+				06:[0-2][0-9]) echo "🕕" ;; 06:[3-5][0-9]) echo "🕡" ;;
+				07:[0-2][0-9]) echo "🕖" ;; 07:[3-5][0-9]) echo "🕢" ;;
+				08:[0-2][0-9]) echo "🕗" ;; 08:[3-5][0-9]) echo "🕣" ;;
+				09:[0-2][0-9]) echo "🕘" ;; 09:[3-5][0-9]) echo "🕤" ;;
+				10:[0-2][0-9]) echo "🕙" ;; 10:[3-5][0-9]) echo "🕥" ;;
+				11:[0-2][0-9]) echo "🕚" ;; 11:[3-5][0-9]) echo "🕦" ;;
+				12:[0-2][0-9]) echo "🕛" ;; 12:[3-5][0-9]) echo "🕧" ;;
+				*) ;;
+			esac
+			;;
+		*) ;;
+	esac
+	return 0
 }
 
-__ps1_color_wrap_non_printing(){
-  local ESC; ESC=$(echo -e '\033')
-  local SOH; SOH=$(echo -e '\001')
-  local STX; STX=$(echo -e '\002')
-  local REGEX; REGEX=${ESC}'\[[[:digit:];]*m'
-  local REPLACE; REPLACE=${SOH}'&'${STX}
-  sed "s/${REGEX}/${REPLACE}/g"
+__ps1_color_wrap_non_printing() {
+	local ESC SOH STX REGEX REPLACE
+	ESC=$(echo -e '\033')
+	SOH=$(echo -e '\001')
+	STX=$(echo -e '\002')
+	REGEX=${ESC}'\[[[:digit:];]*m'
+	REPLACE=${SOH}'&'${STX}
+	sed "s/${REGEX}/${REPLACE}/g"
 }
 
 # Get tty
-__ps1_tty(){ tty | cut -c 6-; }
+__ps1_tty() {
+	tty | cut -c 6-
+	return 0
+}
+
+# Get № Jobs Running
+__ps1_jr() {
+	jobs -pr | wc -l
+	return 0
+}
+
+# Get № Jobs Sleeping
+__ps1_js() {
+	jobs -ps | wc -l
+	return 0
+}
 
 # Uptime
-__ps1_uptime(){
-  local PS1_upsecs; PS1_upsecs=$(awk '{print $1}' /proc/uptime | awk -F . '{print $1}')
-  date -ud @"${PS1_upsecs}" +"$((PS1_upsecs/3600/24))d %H:%M"
+__ps1_uptime() {
+	local PS1_upsecs
+	PS1_upsecs=$(awk '{print $1}' /proc/uptime | awk -F . '{print $1}')
+	date -ud @"${PS1_upsecs}" +"$((PS1_upsecs / 3600 / 24))d %H:%M"
+	return 0
 }
 
 # Dir stats
-__ps1_dirSize(){ sed -n 1p <<< "${PS1_dirList}" | awk '{print $2}'; }
-__ps1_files(){ \grep "^-" <<< "${PS1_dirList}" | awk '{print $9}' | \grep -cv "^\."; }
-__ps1_hiddenFiles(){ \grep "^-" <<< "${PS1_dirList}" | awk '{print $9}' | \grep -c "^\."; }
-__ps1_execs(){ \grep -c "^-..x" <<< "${PS1_dirList}"; }
-__ps1_dirs(){ \grep "^d" <<< "${PS1_dirList}" | awk '{print $9}' | \grep -cv "^\."; }
-__ps1_hiddenDirs(){ \grep "^d" <<< "${PS1_dirList}" | awk '{print $9}' | \grep -c "^\."; }
-__ps1_links(){ \grep -c "^l" <<< "${PS1_dirList}"; }
-__ps1_spec(){ \grep -c "^[bcps]" <<< "${PS1_dirList}"; }
+__ps1_dirSize() { sed -n 1p <<<"${PS1_dirList}" | awk '{print $2}'; }
+__ps1_files() { \grep "^-" <<<"${PS1_dirList}" | awk '{print $9}' | \grep -cv "^\."; }
+__ps1_hiddenFiles() { \grep "^-" <<<"${PS1_dirList}" | awk '{print $9}' | \grep -c "^\."; }
+__ps1_execs() { \grep -c "^-..x" <<<"${PS1_dirList}"; }
+__ps1_dirs() { \grep "^d" <<<"${PS1_dirList}" | awk '{print $9}' | \grep -cv "^\."; }
+__ps1_hiddenDirs() { \grep "^d" <<<"${PS1_dirList}" | awk '{print $9}' | \grep -c "^\."; }
+__ps1_links() { \grep -c "^l" <<<"${PS1_dirList}"; }
+__ps1_spec() { \grep -c "^[bcps]" <<<"${PS1_dirList}"; }
 
 # Calculate padding
-__pad(){
-  local len pad
+__pad() {
+	local len pad
 
-  if [[ "${1}" = 1_L1 ]]; then
-    len="$(wc -m <<< "${PS1_L1@P}")"
-  else
-    len="$(wc -m <<< "${PS1_L2@P}")"
-  fi
-  if [[ "${TERM}" = xterm* ]]; then
-    if [[ "${1}" = 1_L1 ]]; then
-      pad=$((COLUMNS-len-11))
-    else
-      pad=$((COLUMNS-len-8))
-    fi
-  else {
-    if [[ "${1}" = 1_L1 ]]; then
-      pad=$((COLUMNS-len-14))
-    else
-      pad=$((COLUMNS-len))
-    fi
-  }
-  fi
+	if [[ "${1}" = 1_L1 ]]; then
+		len="$(wc -m <<<"${PS1_L1@P}")"
+	else
+		len="$(wc -m <<<"${PS1_L2@P}")"
+	fi
+	if [[ "${TERM}" = xterm* ]]; then
+		if [[ "${1}" = 1_L1 ]]; then
+			pad=$((COLUMNS - len - 11))
+		else
+			pad=$((COLUMNS - len - 8))
+		fi
+	else
+		{
+			if [[ "${1}" = 1_L1 ]]; then
+				pad=$((COLUMNS - len - 14))
+			else
+				pad=$((COLUMNS - len))
+			fi
+		}
+	fi
 
-  printf %"${pad}"s | sed 's/ /═/g'
+	printf %"${pad}"s | sed 's/ /═/g'
 }
 
-# Set the title of a terminal emulator to include the command being executed
-__ps1_preCommand(){
-  case "${TERM}" in
-    xterm*|rxvt*)
-      local pwd='~'
-      [[ "${PWD}" != "${HOME}" ]] && pwd=${PWD/#${HOME}\//\~\/}
-      pwd="${pwd//[[:cntrl:]]}"
-      echo -ne "\033]0;$(__ps1_getVirtualenv) ${USER}@${HOSTNAME%%.*}($(__ps1_tty))($(jobs -r | wc -l)R/$(jobs -s | wc -l)S):${pwd} (${BASH_COMMAND})\007"
-    ;;
-    *) ;;
-  esac
+# Tab/Window Title for graphical terms, includes advanced formatting for:
+# - Maintaining "~" abbreviation across commands
+# - Active command running in foreground, including resumed from "fg"
+# - Display "idle" if nothing running
+#
+# Format:                 ╭────────────────┤Python virtual environment, if active
+#                     ╭───╯   ╭────────────┤Self-explanatory, I hope!
+#                 ╭───╯    ╭──╯ ╭──────────┤# of Jobs Running in background
+#             ╭───╯     ╭──╯  ╭─╯ ╭────────┤# of Jobs Sleeping in background
+#         ╭───╯      ╭──╯   ╭─╯ ╭─╯ ╭──────┤Current Working Dir, or "~" if $HOME
+#     ╭───╯       ╭──╯    ╭─╯ ╭─╯ ╭─╯  ╭───┤Active command running, or "idle" if none
+#  ╭──┴──╮ ╭──────┴─────╮╭┴╮ ╭┴╮ ╭┴╮  ╭┴╮
+# "(v.env) user@host(tty)(JR/JS):cwd (cmd)"
+__ps1_preCommand() {
+	case "${TERM}" in
+		xterm* | rxvt*)
+			local venv ps1_tty
+			venv="$(__ps1_getVirtualenv)"
+			ps1_tty="$(__ps1_tty)"
+
+			# Get a reliable copy of $HOME, independent of Bash's mood
+			local u_home d_pwd
+			u_home="$(getent passwd "${USER}" | cut -d: -f6)"
+			# Update $PWD to ~ if we're $HOME
+			d_pwd="${PWD}"
+			# Strip the home path regardless of trailing slashes
+			[[ "${d_pwd}" == "${u_home}"* ]] && d_pwd="~${d_pwd#"${u_home}"}"
+			# Strip non-printing control chars
+			d_pwd="${d_pwd//[[:cntrl:]]/}"
+
+			# Update jobs!
+			jobs -p >/dev/null 2>&1
+			local jr js
+			jr="$(__ps1_jr)"
+			js="$(__ps1_js)"
+
+			# After a process exits, update the title to read "idle" instead of the
+			# literal last command run (which is ugly "history -a" here)
+			local d_cmd="${BASH_COMMAND}"
+
+			# If command is 'fg' or 'bg', find out what it's actually resuming
+			if [[ "${d_cmd}" == "fg"* || "${d_cmd}" == "bg"* ]]; then
+				# Get the job ID (either from the command or the default %)
+				local job_id="${d_cmd#?? }"
+				[[ "${job_id}" == "${d_cmd}" ]] && job_id="%"
+
+				# Extract the command string from the jobs list for that ID
+				local r_cmd
+				r_cmd=$(jobs -l "${job_id}" 2>/dev/null | awk -F' {2,}' '{print $NF}' | tail -n 1)
+
+				# If we found it, wrap it so you know it's a resumed job
+				[[ -n "${r_cmd}" ]] && d_cmd="${d_cmd} [${r_cmd}]"
+			fi
+
+			[[ "${d_cmd}" == "history -a" ]] && d_cmd="idle"
+
+			printf "\033]0;%s %s@%s(%s)(%sR/%sS):%s (%s)\007" \
+				"${venv}" \
+				"${USER}" \
+				"${HOSTNAME%%.*}" \
+				"${ps1_tty}" \
+				"${jr}" \
+				"${js}" \
+				"${d_pwd}" \
+				"${d_cmd}"
+			;;
+		*) ;;
+	esac
+
+	# Important to return success, lest the debug trap swallows our command!
+	return 0
 }
-trap "__ps1_preCommand" DEBUG
+# Just to be sure the debug trap stays hungry
+trap '__ps1_preCommand || true' DEBUG
 
 # Color, dirList, and lolcat options based on the terminal
 case "${TERM}" in
-  xterm*) PS1_color=yes; PS1_getDirList=yes; PS1_lc_opts=( -v 0.1 -h 0.1 -b -f );;
-   linux) PS1_color=yes; PS1_getDirList=yes; PS1_lc_opts=( -x -f );;
-       *) ;;
+	xterm*)
+		PS1_color=yes
+		PS1_getDirList=yes
+		PS1_lc_opts=(-v 0.1 -h 0.1 -b -f)
+		;;
+	linux)
+		PS1_color=yes
+		PS1_getDirList=yes
+		PS1_lc_opts=(-x -f)
+		;;
+	*) ;;
 esac
 
-__prompt_command(){
-  # Save last exit code
-  local PS1_exit=$?
+__prompt_command() {
+	# Save last exit code
+	local PS1_exit=$?
 
-  local PS1_dirList PS1_L0 PS1_L1 PS1_L2 PS1_L3
+	local PS1_dirList PS1_L0 PS1_L1 PS1_L2 PS1_L3
 
-  # Get dir listing, if we want it
-  if [[ -n "${PS1_getDirList}" ]]
-    then PS1_dirList=$(\ls -Al --si)
-  fi
+	# Get dir listing, if we want it
+	if [[ -n "${PS1_getDirList}" ]]; then
+		PS1_dirList=$(\ls -Al --si)
+	fi
 
-  # PS1 Line 1
-  # Exit code of previous command
-  PS1_L1=" ╚═${PS1_Op}${PS1_exit}${PS1_Cl}"
-  # Name of the lion using this term
-  PS1_L1+="══${PS1_Op}$(__ps1_utf8 🦁 'U:')\u${PS1_Cl}"
-  # The TTY of this term
-  PS1_L1+="══${PS1_Op}$(__ps1_utf8 📺 'T:')$(__ps1_tty)${PS1_Cl}"
-  # The host of this term
-  PS1_L1+="══${PS1_Op}$(__ps1_utf8 💻 'H:')\h${PS1_Cl}"
-  # The uptime of this host
-  PS1_L1+="══${PS1_Op}$(__ps1_utf8 ⚡ 'Up:')$(__ps1_uptime)${PS1_Cl}"
-  # Line padding and eternal flame
-  PS1_L1+="$(__pad 1_L1)═╡$(__ps1_utf8 🔥 'on I burn')╞══╗\n"
-  # PS1 Line 2
-  # The length of our command history, global and for this term
-  PS1_L2="╔═${PS1_Op}\!:\#${PS1_Cl}"
-  # Background jobs, running and sleeping
-  PS1_L2+="══${PS1_Op}$(__ps1_utf8 🏃 'R:')$(jobs -r | wc -l)/$(__ps1_utf8 💤 'S:')$(jobs -s | wc -l)${PS1_Cl}"
-  # Current Working Directory stat's...
-  PS1_L2+="══${PS1_Op}$(__ps1_utf8 📂 'cwd:')\W($(__ps1_dirSize)B"
-  # ...№ files, normal and hidden...
-  PS1_L2+=" $(__ps1_utf8 📄 -)$(__ps1_files).$(__ps1_hiddenFiles)"
-  # ...№ executables...
-  PS1_L2+=" $(__ps1_utf8 💾 x)$(__ps1_execs)"
-  # ...№ directories, normal and hidden...
-  PS1_L2+=" $(__ps1_utf8 📁 d)$(__ps1_dirs).$(__ps1_hiddenDirs)"
-  # ...№ links...
-  PS1_L2+=" $(__ps1_utf8 🔗 l)$(__ps1_links)"
-  # ...№ special files
-  PS1_L2+=" $(__ps1_utf8 📠 s)$(__ps1_spec))${PS1_Cl}"
-  # Line padding
-  PS1_L2+="$(__pad 1_L2)╝\n"
-  # PS1 Line 3
-  # If we're in a python virtual environment, print its name
-  PS1_L3="╚╦$(__ps1_getVirtualenv)═$(__ps1_utf8 ╾ '>')$(__ps1_utf8 💲 '$') "
+	# PS1 Line 1
+	# Exit code of previous command
+	PS1_L1=" ╚═${PS1_Op}${PS1_exit}${PS1_Cl}"
+	# Name of the lion using this term
+	PS1_L1+="══${PS1_Op}$(__ps1_utf8 🦁 'U:')\u${PS1_Cl}"
+	# The TTY of this term
+	PS1_L1+="══${PS1_Op}$(__ps1_utf8 📺 'T:')$(__ps1_tty)${PS1_Cl}"
+	# The host of this term
+	PS1_L1+="══${PS1_Op}$(__ps1_utf8 💻 'H:')\h${PS1_Cl}"
+	# The uptime of this host
+	PS1_L1+="══${PS1_Op}$(__ps1_utf8 ⚡ 'Up:')$(__ps1_uptime)${PS1_Cl}"
+	# Line padding and eternal flame
+	PS1_L1+="$(__pad 1_L1)═╡$(__ps1_utf8 🔥 'on I burn')╞══╗\n"
+	# PS1 Line 2
+	# The length of our command history, global and for this term
+	PS1_L2="╔═${PS1_Op}\!:\#${PS1_Cl}"
+	# Background jobs, running and sleeping
+	PS1_L2+="══${PS1_Op}$(__ps1_utf8 🏃 'R:')$(__ps1_jr)/$(__ps1_utf8 💤 'S:')$(__ps1_js)${PS1_Cl}"
+	# Current Working Directory stat's...
+	PS1_L2+="══${PS1_Op}$(__ps1_utf8 📂 'cwd:')\W($(__ps1_dirSize)B"
+	# ...№ files, normal and hidden...
+	PS1_L2+=" $(__ps1_utf8 📄 -)$(__ps1_files).$(__ps1_hiddenFiles)"
+	# ...№ executables...
+	PS1_L2+=" $(__ps1_utf8 💾 x)$(__ps1_execs)"
+	# ...№ directories, normal and hidden...
+	PS1_L2+=" $(__ps1_utf8 📁 d)$(__ps1_dirs).$(__ps1_hiddenDirs)"
+	# ...№ links...
+	PS1_L2+=" $(__ps1_utf8 🔗 l)$(__ps1_links)"
+	# ...№ special files
+	PS1_L2+=" $(__ps1_utf8 📠 s)$(__ps1_spec))${PS1_Cl}"
+	# Line padding
+	PS1_L2+="$(__pad 1_L2)╝\n"
+	# PS1 Line 3
+	# If we're in a python virtual environment, print its name
+	PS1_L3="╚╦$(__ps1_getVirtualenv)═$(__ps1_utf8 ╾ '>')$(__ps1_utf8 💲 '$') "
 
-  # shellcheck disable=SC2016
-  case "${PS1_color}" in
-    yes) if [[ "${TERM}" == xterm* ]]
-         then {
-              PS0='$(lolcat-c '${PS1_lc_opts[*]}' <<< "╾╨────┤Program running  $(__ps1_utf8 🗓️) \d  $(__ps1_utf8time "$(date +"%I")" "$(date +"%M")")\D{}├$(printf %$((COLUMNS-54))s | sed "s/ /─/g")╮")'
-           PS1_L0='$(lolcat-c '${PS1_lc_opts[*]}' <<< "╾╥────┤Program finished $(__ps1_utf8 🗓️) \d  $(__ps1_utf8time "$(date +"%I")" "$(date +"%M")")\D{}├$(printf %$((COLUMNS-54))s | sed "s/ /─/g")╯")'
-         }
-         else {
-              PS0='$(lolcat-c '${PS1_lc_opts[*]}' <<< "╾╨────┤Program running   \d \D{}├$(printf %$((COLUMNS-49))s | sed "s/ /─/g")╮")'
-           PS1_L0='$(lolcat-c '${PS1_lc_opts[*]}' <<< "╾╥────┤Program finished  \d \D{}├$(printf %$((COLUMNS-49))s | sed "s/ /─/g")╯")'
-         }; fi
-         PS1='$(lolcat-c '${PS1_lc_opts[*]}' <<< "'${PS1_L0}${PS1_L1}${PS1_L2}${PS1_L3}'" | sed -z "s/\(.*\)\\n/\1/" | __ps1_color_wrap_non_printing)'
-         PS2="$(lolcat-c "${PS1_lc_opts[@]}" <<< " ╠══$(__ps1_utf8 ╾ ┈) " | sed -z "s/\(.*\)\\n/\1/" | __ps1_color_wrap_non_printing)"
-    ;;
-    *) if [[ "${TERM}" == xterm* ]]
-       then {
-            PS0="╾╨────┤Program running  $(__ps1_utf8 "🗓️ ") \d  $(__ps1_utf8time "$(date +"%I")" "$(date +"%M")") \D{}├$(printf %$((COLUMNS-62))s | sed "s/ /─/g")╮\n"
-         PS1_L0="╾╥────┤Program finished $(__ps1_utf8 "🗓️ ") \d  $(__ps1_utf8time "$(date +"%I")" "$(date +"%M")") \D{}├$(printf %$((COLUMNS-62))s | sed "s/ /─/g")╯\n"
-       }
-       else {
-         # shellcheck disable=SC2034
-            PS0="╾╨────┤Program running   \d \D{}├$(printf %$((COLUMNS-49))s | sed "s/ /─/g")╮"
-         PS1_L0="╾╥────┤Program finished  \d \D{}├$(printf %$((COLUMNS-49))s | sed "s/ /─/g")╯"
-       }; fi
-       PS1="${PS1_L0}${PS1_L1}${PS1_L2}${PS1_L3}"
-       PS2=" ╠══$(__ps1_utf8 ╾ ┈) "
-    ;;
-  esac
-  if [[ "${TERM}" ==  xterm* || "${TERM}" == rxvt* ]]
-  then {
-    PS1="\[\e]0;$(__ps1_getVirtualenv) \u@\h($(__ps1_tty))($(jobs -r | wc -l)R/$(jobs -s | wc -l)S):\w (idle)\a\]${PS1}"
-  }; fi
+	# shellcheck disable=SC2016
+	case "${PS1_color}" in
+		yes)
+			if [[ "${TERM}" == xterm* ]]; then
+				{
+					PS0='$(lolcat-c '${PS1_lc_opts[*]}' <<< "╾╨────┤Program running  $(__ps1_utf8 🗓️) \d  $(__ps1_utf8time "$(date +"%I")" "$(date +"%M")")\D{}├$(printf %$((COLUMNS-54))s | sed "s/ /─/g")╮")'
+					PS1_L0='$(lolcat-c '${PS1_lc_opts[*]}' <<< "╾╥────┤Program finished $(__ps1_utf8 🗓️) \d  $(__ps1_utf8time "$(date +"%I")" "$(date +"%M")")\D{}├$(printf %$((COLUMNS-54))s | sed "s/ /─/g")╯")'
+				}
+			else {
+				PS0='$(lolcat-c '${PS1_lc_opts[*]}' <<< "╾╨────┤Program running   \d \D{}├$(printf %$((COLUMNS-49))s | sed "s/ /─/g")╮")'
+				PS1_L0='$(lolcat-c '${PS1_lc_opts[*]}' <<< "╾╥────┤Program finished  \d \D{}├$(printf %$((COLUMNS-49))s | sed "s/ /─/g")╯")'
+			}; fi
+			PS1='$(lolcat-c '${PS1_lc_opts[*]}' <<< "'${PS1_L0}${PS1_L1}${PS1_L2}${PS1_L3}'" | sed -z "s/\(.*\)\\n/\1/" | __ps1_color_wrap_non_printing)'
+			PS2="$(lolcat-c "${PS1_lc_opts[@]}" <<<" ╠══$(__ps1_utf8 ╾ ┈) " | sed -z "s/\(.*\)\\n/\1/" | __ps1_color_wrap_non_printing)"
+			;;
+		*)
+			if [[ "${TERM}" == xterm* ]]; then
+				{
+					PS0="╾╨────┤Program running  $(__ps1_utf8 "🗓️ ") \d  $(__ps1_utf8time "$(date +"%I")" "$(date +"%M")") \D{}├$(printf %$((COLUMNS - 62))s | sed "s/ /─/g")╮\n"
+					PS1_L0="╾╥────┤Program finished $(__ps1_utf8 "🗓️ ") \d  $(__ps1_utf8time "$(date +"%I")" "$(date +"%M")") \D{}├$(printf %$((COLUMNS - 62))s | sed "s/ /─/g")╯\n"
+				}
+			else {
+				# shellcheck disable=SC2034
+				PS0="╾╨────┤Program running   \d \D{}├$(printf %$((COLUMNS - 49))s | sed "s/ /─/g")╮"
+				PS1_L0="╾╥────┤Program finished  \d \D{}├$(printf %$((COLUMNS - 49))s | sed "s/ /─/g")╯"
+			}; fi
+			PS1="${PS1_L0}${PS1_L1}${PS1_L2}${PS1_L3}"
+			PS2=" ╠══$(__ps1_utf8 ╾ ┈) "
+			;;
+	esac
+	if [[ "${TERM}" == xterm* || "${TERM}" == rxvt* ]]; then {
+		PS1="\[\e]0;$(__ps1_getVirtualenv) \u@\h($(__ps1_tty))($(__ps1_jr)R/$(__ps1_js)S):\w (idle)\a\]${PS1}"
+	}; fi
 }
 PROMPT_COMMAND="__prompt_command${PROMPT_COMMAND:+; ${PROMPT_COMMAND}}"
 
-# vim:et:sts=2:sw=2:ts=2
+# vim:noet:sts=4:sw=4:ts=4
