@@ -34,15 +34,15 @@ This's my first time sharing something on github, so I'll probably now want to a
 Anyway, happy to hear about your suggestions and improvements!  Happy hacking 😁
 
 ### Screenshots
-| ![Screenshot of main prompt in Gnome Terminal](.bash_prompt-screenshots/ExampleMain-GnomeTerminal.png?raw=true "Main prompt in Gnome Terminal") |
+| ![Screenshot of main prompt in Gnome Terminal](.bash_prompt-screenshots/ExampleMain-GnomeTerminal.png "Main prompt in Gnome Terminal") |
 | - |
 | Main prompt in Gnome Terminal features 24-bit color with colored emojis |
 
-| ![Screenshot of main prompt in Terminology](.bash_prompt-screenshots/ExampleMain-Terminology.png?raw=true "Main prompt in Terminology") |
+| ![Screenshot of main prompt in Terminology](.bash_prompt-screenshots/ExampleMain-Terminology.png "Main prompt in Terminology") |
 | - |
 | Main prompt in Terminology features 8-bit color with plain emojis |
 
-| ![Screenshot of fallback prompt in Debian Console](.bash_prompt-screenshots/Example-DebianConsole.png?raw=true "Fallback prompt in Debian Console") |
+| ![Screenshot of fallback prompt in Debian Console](.bash_prompt-screenshots/Example-DebianConsole.png "Fallback prompt in Debian Console") |
 | - |
 | Fallback prompt in Debian Console features 4-bit color and no emojis 😢 |
 
