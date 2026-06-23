@@ -2,11 +2,32 @@
 # shellcheck shell=bash
 # shellcheck disable=SC2312
 
+# Check termcaps
+# Start in our safe space
+PS1_color=no
+HAS_FANCY_FONT=no
+# Check for Color Capability via tput
+case $(tput colors 2>/dev/null) in
+	[1-9]|1[0-6])
+		PS1_color="yes"
+		PS1_lc_opts=(-x -f)
+	;;
+	*)
+		PS1_color="yes"
+		PS1_lc_opts=(-v 0.1 -h 0.1 -b -f)
+	;;
+esac
+
+# Check for Unicode (OS Locale + Terminal Blocklist)
+if [[ "${LC_ALL:-${LC_CTYPE:-${LANG}}}" =~ [Uu][Tt][Ff]-?8 ]] && [[ ! "${TERM}" =~ ^(linux|dumb|cons25|vt[0-9]+)$ ]]; then
+	HAS_FANCY_FONT=yes
+fi
+
 # Print UTF-8 char?
 # To define fallback chars for terms that don't support Unicode
 __ps1_utf8() {
-	case "${TERM}" in
-		xterm*)
+	case "${HAS_FANCY_FONT}" in
+		yes)
 			echo "${1}"
 			;;
 		*)
@@ -35,14 +56,14 @@ PS1_Cl="$(__ps1_utf8 ⟫ ']')"
 export VIRTUAL_ENV_DISABLE_PROMPT="yes"
 __ps1_getVirtualenv() {
 	if [[ -v VIRTUAL_ENV ]]; then
-		echo -n "${PS1_Op}$(basename ${VIRTUAL_ENV})${PS1_Cl}"
+		echo -n "${PS1_Op}$(basename "${VIRTUAL_ENV}")${PS1_Cl}"
 	fi
 }
 
 # Print UTF-8 time char?
 __ps1_utf8time() {
-	case "${TERM}" in
-		xterm*)
+	case "${HAS_FANCY_FONT}" in
+		yes)
 			case "${1}:${2}" in
 				01:[0-2][0-9]) echo "🕐" ;; 01:[3-5][0-9]) echo "🕜" ;;
 				02:[0-2][0-9]) echo "🕑" ;; 02:[3-5][0-9]) echo "🕝" ;;
@@ -119,14 +140,13 @@ __pad() {
 	else
 		len="$(wc -m <<<"${PS1_L2@P}")"
 	fi
-	if [[ "${TERM}" = xterm* ]]; then
+	if [[ "${HAS_FANCY_FONT}" = yes ]]; then
 		if [[ "${1}" = 1_L1 ]]; then
 			pad=$((COLUMNS - len - 11))
 		else
 			pad=$((COLUMNS - len - 8))
 		fi
-	else
-		{
+	else {
 			if [[ "${1}" = 1_L1 ]]; then
 				pad=$((COLUMNS - len - 14))
 			else
@@ -152,8 +172,7 @@ __pad() {
 #  ╭──┴──╮ ╭──────┴─────╮╭┴╮ ╭┴╮ ╭┴╮  ╭┴╮
 # "(v.env) user@host(tty)(JR/JS):cwd (cmd)"
 __ps1_preCommand() {
-	case "${TERM}" in
-		xterm* | rxvt*)
+	if tput tsl >/dev/null 2>&1; then
 			local venv ps1_tty
 			venv="$(__ps1_getVirtualenv)"
 			ps1_tty="$(__ps1_tty)"
@@ -203,9 +222,7 @@ __ps1_preCommand() {
 				"${js}" \
 				"${d_pwd}" \
 				"${d_cmd}"
-			;;
-		*) ;;
-	esac
+	fi
 
 	# Important to return success, lest the debug trap swallows our command!
 	return 0
@@ -213,21 +230,8 @@ __ps1_preCommand() {
 # Just to be sure the debug trap stays hungry
 trap '__ps1_preCommand || true' DEBUG
 
-# Color, dirList, and lolcat options based on the terminal
-case "${TERM}" in
-	xterm*)
-		PS1_color=yes
-		PS1_getDirList=yes
-		PS1_lc_opts=(-v 0.1 -h 0.1 -b -f)
-		;;
-	linux)
-		PS1_color=yes
-		PS1_getDirList=yes
-		PS1_lc_opts=(-x -f)
-		;;
-	*) ;;
-esac
 
+# Now for the main event!
 __prompt_command() {
 	# Save last exit code
 	local PS1_exit=$?
@@ -278,8 +282,7 @@ __prompt_command() {
 	# shellcheck disable=SC2016
 	case "${PS1_color}" in
 		yes)
-			if [[ "${TERM}" == xterm* ]]; then
-				{
+			if [[ "${HAS_FANCY_FONT}" == yes ]]; then {
 					PS0='$(lolcat-c '${PS1_lc_opts[*]}' <<< "╾╨────┤Program running  $(__ps1_utf8 🗓️) \d  $(__ps1_utf8time "$(date +"%I")" "$(date +"%M")")\D{}├$(printf %$((COLUMNS-54))s | sed "s/ /─/g")╮")'
 					PS1_L0='$(lolcat-c '${PS1_lc_opts[*]}' <<< "╾╥────┤Program finished $(__ps1_utf8 🗓️) \d  $(__ps1_utf8time "$(date +"%I")" "$(date +"%M")")\D{}├$(printf %$((COLUMNS-54))s | sed "s/ /─/g")╯")'
 				}
@@ -291,8 +294,7 @@ __prompt_command() {
 			PS2="$(lolcat-c "${PS1_lc_opts[@]}" <<<" ╠══$(__ps1_utf8 ╾ ┈) " | sed -z "s/\(.*\)\\n/\1/" | __ps1_color_wrap_non_printing)"
 			;;
 		*)
-			if [[ "${TERM}" == xterm* ]]; then
-				{
+			if [[ "${HAS_FANCY_FONT}" == yes ]]; then {
 					PS0="╾╨────┤Program running  $(__ps1_utf8 "🗓️ ") \d  $(__ps1_utf8time "$(date +"%I")" "$(date +"%M")") \D{}├$(printf %$((COLUMNS - 62))s | sed "s/ /─/g")╮\n"
 					PS1_L0="╾╥────┤Program finished $(__ps1_utf8 "🗓️ ") \d  $(__ps1_utf8time "$(date +"%I")" "$(date +"%M")") \D{}├$(printf %$((COLUMNS - 62))s | sed "s/ /─/g")╯\n"
 				}
@@ -305,9 +307,9 @@ __prompt_command() {
 			PS2=" ╠══$(__ps1_utf8 ╾ ┈) "
 			;;
 	esac
-	if [[ "${TERM}" == xterm* || "${TERM}" == rxvt* ]]; then {
+	if tput tsl >/dev/null 2>&1; then
 		PS1="\[\e]0;$(__ps1_getVirtualenv) \u@\h($(__ps1_tty))($(__ps1_jr)R/$(__ps1_js)S):\w (idle)\a\]${PS1}"
-	}; fi
+	fi
 }
 PROMPT_COMMAND="__prompt_command${PROMPT_COMMAND:+; ${PROMPT_COMMAND}}"
 
